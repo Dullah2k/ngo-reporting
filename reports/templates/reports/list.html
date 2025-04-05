@@ -1,63 +1,155 @@
 {% extends "user_account/base.html" %}
+{% block title %} Reports List {% endblock %}
+
 {% block content %}
-<h1>Reports Dashboard</h1>
 
-<!-- Filter Form -->
-<form method="get" class="filter-form">
-	{% if is_admin %}
-	<div>
-		<label>Organization:</label>
-		<input type="text" name="organization" value="{{ filter_values.organization }}">
-	</div>
-	{% endif %}
+<style>
+	.filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+select, input[type="number"], input[type="text"] {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.filter-button, .clear-filters {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.filter-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.clear-filters {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+}
+</style>
+
+<section class="reports-list">
+	<h1>Reports Dashboard</h1>
 	
-	<div>
-		<label>Year:</label>
-		<input type="number" name="year" min="2020" max="2030" value="{{ filter_values.year }}">
-	</div>
+	<!-- Filter Form -->
+	<form method="get" class="filter-form">
+		{% if is_admin %}
+		<div class="filter-group">
+			<label>Organization:</label>
+			<input type="text" name="organization" 
+				 value="{{ filter_values.organization }}"
+				 placeholder="Search organizations...">
+		</div>
+		{% endif %}
+		
+		<div class="filter-group">
+			<label>Year:</label>
+			<input type="number" name="year" min="2020" max="2030" 
+				 value="{{ filter_values.year }}">
+		</div>
+		
+		<div class="filter-group">
+			<label>Quarter:</label>
+			<select name="quarter">
+					<option value="">All Quarters</option>
+					{% for value, label in quarter_choices %}
+					<option value="{{ value }}" 
+									{% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
+							{{ label }}
+					</option>
+					{% endfor %}
+			</select>
+		</div>
+		
+		<div class="filter-group">
+			<label>Status:</label>
+			<select name="status">
+					<option value="">All Statuses</option>
+					{% for value, label in status_choices %}
+					<option value="{{ value }}" 
+									{% if filter_values.status == value %}selected{% endif %}>
+							{{ label }}
+					</option>
+					{% endfor %}
+			</select>
+		</div>
+		
+		<div class="filter-group">
+			<label>Sector:</label>
+			<select name="sector">
+					<option value="">All Sectors</option>
+					{% for value, label in sector_choices %}
+					<option value="{{ value }}" 
+									{% if filter_values.sector == value %}selected{% endif %}>
+							{{ label }}
+					</option>
+					{% endfor %}
+			</select>
+		</div>
+		
+		<div class="filter-group">
+			<label>Ward:</label>
+			<select name="ward">
+					<option value="">All Wards</option>
+					{% for value, label in ward_choices %}
+					<option value="{{ value }}" 
+									{% if filter_values.ward == value %}selected{% endif %}>
+							{{ label }}
+					</option>
+					{% endfor %}
+			</select>
+		</div>
+		
+		<button type="submit" class="filter-button">Apply Filters</button>
+		<a href="{% url 'reports:report_list' %}" class="clear-filters">Clear All</a>
+	</form>
 	
-	<div>
-		<label>Quarter:</label>
-		<select name="quarter">
-			<option value="">All</option>
-			{% for value, label in Report.Quarter.choices %}
-			<option value="{{ value }}" {% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
-				{{ label }}
-			</option>
+	<!-- Reports Table -->
+	<table>
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Year</th>
+				<th>Quarter</th>
+				<th>Organization</th>
+				<th>Total Beneficiaries</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for report in reports %}
+			<tr class="status-{{ report.status|lower }}">
+				<td>{{ report.title }}</td>
+				<td>{{ report.year }}</td>
+				<td>{{ report.get_quarter_display }}</td>
+				<td>{{ report.organization.get_full_name }}</td>
+				<td>{{ report.total_beneficiaries }}</td>
+				<td>{{ report.get_status_display }}</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td colspan="6">No reports found</td>
+			</tr>
 			{% endfor %}
-		</select>
-	</div>
-	
-	<button type="submit">Filter</button>
-</form>
+		</tbody>
+	</table>
 
-<!-- Reports Table -->
-<table>
-	<thead>
-		<tr>
-			<th>Title</th>
-			<th>Year</th>
-			<th>Quarter</th>
-			<th>Organization</th>
-			<th>Total Beneficiaries</th>
-			<th>Status</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for report in reports %}
-		<tr class="status-{{ report.status|lower }}">
-			<td>{{ report.title }}</td>
-			<td>{{ report.year }}</td>
-			<td>{{ report.get_quarter_display }}</td>
-			<td>{{ report.organization.get_full_name }}</td>
-			<td>{{ report.total_beneficiaries }}</td>
-			<td>{{ report.get_status_display }}</td>
-		</tr>
-		{% empty %}
-		<tr>
-			<td colspan="6">No reports found</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+</section>
 {% endblock %}

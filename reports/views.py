@@ -43,18 +43,30 @@ def report_list(request):
 	if not is_admin:
 		reports = reports.filter(organization=request.user)
 	
-	# Filtering logic
-	if request.GET.get('year'):
-		reports = reports.filter(year=request.GET['year'])
-	if request.GET.get('quarter'):
-		reports = reports.filter(quarter=request.GET['quarter'])
-	if request.GET.get('sector'):
-		reports = reports.filter(sector=request.GET['sector'])
+	# Filtering parameters
+	filters = {
+		'year': request.GET.get('year'),
+		'quarter': request.GET.get('quarter'),
+		'status': request.GET.get('status'),
+		'sector': request.GET.get('sector'),
+		'ward': request.GET.get('ward'),
+	}
+	
+	# Apply filters
+	for key, value in filters.items():
+		if value:
+			reports = reports.filter(**{key: value})
 	
 	context = {
 		'reports': reports,
 		'is_admin': is_admin,
 		'filter_values': request.GET,
+		# Add these to make choices available in template
+		'quarter_choices': Report.Quarter.choices,
+		'status_choices': Report.Status.choices,
+		'sector_choices': Report.Sector.choices,
+		'ward_choices': Report.WardChoices.choices,
 	}
+
 	return render(request, 'reports/list.html', context)
 
