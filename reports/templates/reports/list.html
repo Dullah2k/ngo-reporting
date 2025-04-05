@@ -1,0 +1,63 @@
+{% extends "user_account/base.html" %}
+{% block content %}
+<h1>Reports Dashboard</h1>
+
+<!-- Filter Form -->
+<form method="get" class="filter-form">
+	{% if is_admin %}
+	<div>
+		<label>Organization:</label>
+		<input type="text" name="organization" value="{{ filter_values.organization }}">
+	</div>
+	{% endif %}
+	
+	<div>
+		<label>Year:</label>
+		<input type="number" name="year" min="2020" max="2030" value="{{ filter_values.year }}">
+	</div>
+	
+	<div>
+		<label>Quarter:</label>
+		<select name="quarter">
+			<option value="">All</option>
+			{% for value, label in Report.Quarter.choices %}
+			<option value="{{ value }}" {% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
+				{{ label }}
+			</option>
+			{% endfor %}
+		</select>
+	</div>
+	
+	<button type="submit">Filter</button>
+</form>
+
+<!-- Reports Table -->
+<table>
+	<thead>
+		<tr>
+			<th>Title</th>
+			<th>Year</th>
+			<th>Quarter</th>
+			<th>Organization</th>
+			<th>Total Beneficiaries</th>
+			<th>Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for report in reports %}
+		<tr class="status-{{ report.status|lower }}">
+			<td>{{ report.title }}</td>
+			<td>{{ report.year }}</td>
+			<td>{{ report.get_quarter_display }}</td>
+			<td>{{ report.organization.get_full_name }}</td>
+			<td>{{ report.total_beneficiaries }}</td>
+			<td>{{ report.get_status_display }}</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td colspan="6">No reports found</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

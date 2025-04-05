@@ -1,0 +1,21 @@
+{% extends "user_account/base.html" %}
+{% block title %} Submit Report {% endblock %}
+
+{% block content %}
+<h1>Submit New Report</h1>
+<form method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	
+	<div class="form-section">
+		<h2>Basic Information</h2>
+		{{ report_form.as_p }}
+	</div>
+	
+	<div class="form-section">
+		<h2>Report Photos</h2>
+		{{ photo_form.as_p }}
+	</div>
+	
+	<button type="submit">Submit Report</button>
+</form>
+{% endblock %}
