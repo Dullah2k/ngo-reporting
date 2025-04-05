@@ -1,0 +1,16 @@
+{% extends 'user_account/auth_base.html' %}
+{% block title %} Login {% endblock %}
+
+{% block content %}
+<div class="login-form">
+  <form action="{% url 'user_account:login' %}" method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}" />
+    <p><input type="submit" value="Log-in" class=""></p>
+  </form>
+
+  <p><a href="#">Forgot your Password?</a></p>
+  <a href="{% url 'user_account:register' %}">Create a new account</a>
+</div>
+{% endblock %}
