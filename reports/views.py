@@ -96,7 +96,7 @@ def review_report(request, pk):
       report.save()
       
       messages.success(request, f"Report {report.get_status_display().lower()}")
-      return redirect('reports:report_detail', pk=pk)
+      return redirect('reports:report_list')
 		
   else:
     form = ReviewReportForm(initial={'action': report.status})
