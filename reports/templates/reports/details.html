@@ -1,0 +1,72 @@
+{% extends "user_account/base.html" %}
+{% block title %} Report details {% endblock %}
+
+{% block content %}
+<div class="report-container">
+  <div class="report-header">
+      <h1>{{ report.title }}</h1>
+      <span class="status-badge status-{{ report.status|lower }}">
+          {{ report.get_status_display }}
+      </span>
+  </div>
+
+  <div class="report-meta">
+      <div class="meta-group">
+          <span class="meta-label">Organization:</span>
+          <span class="meta-value">{{ report.organization.get_full_name }}</span>
+      </div>
+      <div class="meta-group">
+          <span class="meta-label">Period:</span>
+          <span class="meta-value">{{ report.get_quarter_display }} {{ report.year }}</span>
+      </div>
+      <div class="meta-group">
+          <span class="meta-label">Location:</span>
+          <span class="meta-value">{{ report.ward }}, {{ report.district }}</span>
+      </div>
+  </div>
+
+  <!-- Review Section -->
+  {% if can_review %}
+  <div class="review-panel">
+      <a href="{% url 'reports:review_report' report.pk %}" class="btn-review">
+          Review Report
+      </a>
+  </div>
+  {% endif %}
+
+  <!-- Main Content Sections -->
+  <div class="report-section">
+      <h2>Executive Summary</h2>
+      <p>{{ report.summary }}</p>
+  </div>
+
+  <div class="report-section">
+      <h2>Key Metrics</h2>
+      <div class="metrics-grid">
+          <div class="metric">
+              <span class="metric-label">Target Beneficiaries</span>
+              <span class="metric-value">{{ report.target }}</span>
+          </div>
+          <div class="metric">
+              <span class="metric-label">Achieved Beneficiaries</span>
+              <span class="metric-value">{{ report.achieved }}</span>
+          </div>
+          <div class="metric">
+              <span class="metric-label">Total Beneficiaries</span>
+              <span class="metric-value">{{ report.total_beneficiaries }}</span>
+          </div>
+      </div>
+  </div>
+
+  {% if request.user.is_staff %}
+    <div class="admin-actions">
+        <a href="#" class="btn-edit">
+            Edit Report (Admin)
+        </a>
+    </div>
+  {% endif %}
+
+  <!-- Add more sections as needed -->
+</div>
+<!-- Rest of report details -->
+{% endblock %}

@@ -6,6 +6,23 @@
   <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+  <header>
+    <ul class="inner-header">
+      <small> {{ request.user.username }} </small>
+      
+      <li>
+        <a href="{% url 'user_account:dashboard' %}">dashboard</a>
+      </li>
+
+      <li>
+        <a href="{% url 'user_account:logout' %}">Logout</a>
+      </li>
+      
+      <li>
+        <a href="{% url 'reports:report_list' %}">Reports List</a>
+      </li>
+    </ul>
+  </header>
   {% block content %}{% endblock %}
 </body>
 </html>

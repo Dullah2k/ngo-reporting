@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils import timezone
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import ReportForm, ReportPhotoForm
 from .models import ReportPhoto
 from .models import Report
+from .forms import ReviewReportForm
 
 @login_required
 def create_report(request):
@@ -70,3 +73,35 @@ def report_list(request):
 
 	return render(request, 'reports/list.html', context)
 
+def report_detail(request, pk):
+  report = get_object_or_404(Report, pk=pk)
+  context = {
+    'report': report,
+    'can_review': request.user.is_staff and report.status == Report.Status.SUBMITTED
+  }
+  return render(request, 'reports/details.html', context)
+
+@staff_member_required
+def review_report(request, pk):
+  report = get_object_or_404(Report, pk=pk)
+  
+  if request.method == 'POST':
+    form = ReviewReportForm(request.POST)
+    if form.is_valid():
+      # Update report status
+      report.status = form.cleaned_data['action']
+      report.review_notes = form.cleaned_data['review_notes']
+      report.approved_by = request.user
+      report.status_changed_date = timezone.now()
+      report.save()
+      
+      messages.success(request, f"Report {report.get_status_display().lower()}")
+      return redirect('reports:report_detail', pk=pk)
+		
+  else:
+    form = ReviewReportForm(initial={'action': report.status})
+
+  return render(request, 'reports/review_report.html', {
+    'report': report,
+    'form': form
+  })

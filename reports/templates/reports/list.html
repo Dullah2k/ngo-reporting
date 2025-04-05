@@ -131,17 +131,31 @@ select, input[type="number"], input[type="text"] {
 				<th>Organization</th>
 				<th>Total Beneficiaries</th>
 				<th>Status</th>
+				<th>Action</th>
 			</tr>
 		</thead>
 		<tbody>
 			{% for report in reports %}
 			<tr class="status-{{ report.status|lower }}">
-				<td>{{ report.title }}</td>
+        <td>
+          <a href="{% url 'reports:report_details' report.pk %}">
+            {{ report.title }}
+          </a>
+        </td>
 				<td>{{ report.year }}</td>
 				<td>{{ report.get_quarter_display }}</td>
 				<td>{{ report.organization.get_full_name }}</td>
 				<td>{{ report.total_beneficiaries }}</td>
 				<td>{{ report.get_status_display }}</td>
+        <td>
+          {% if is_admin and report.status == Report.Status.SUBMITTED %}
+          <a href="{% url 'reports:review_report' report.pk %}" 
+             class="review-link"
+             title="Review and update status">
+             ⚙️ Review
+          </a>
+          {% endif %}
+      </td>
 			</tr>
 			{% empty %}
 			<tr>

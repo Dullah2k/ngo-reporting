@@ -1,0 +1,21 @@
+{% extends "user_account/base.html" %}
+{% block title %} Review submitted report {% endblock %}
+
+{% block content %}
+<h1>Review Report: {{ report.title }}</h1>
+<div class="report-status">
+    Current Status: <span class="status-{{ report.status|lower }}">{{ report.get_status_display }}</span>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-section">
+        {{ form.as_p }}
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn-approve">Submit Review</button>
+        <a href="{{ report.get_absolute_url }}" class="btn-cancel">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -109,6 +109,8 @@ class Report(models.Model):
   youth = models.IntegerField(_("Youth Beneficiaries"), default=0)
   sdg_alignment = models.CharField(max_length=2,choices=SDGChoices.choices,verbose_name=_('Sustainable Development Goal'))
   indicator = models.CharField(max_length=50, choices=SDGIndicatorChoices.choices, verbose_name=_('SDG Indicator'))
+  status_changed_date = models.DateTimeField(null=True, blank=True)
+  review_notes = models.TextField(_("Review Notes"), blank=True)
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
 
@@ -128,6 +130,9 @@ class Report(models.Model):
 
   class Meta:
     ordering = ['-year', '-quarter']
+    permissions = [
+      ("can_review_report", "Can review and approve/reject reports")
+    ]
 
   def __str__(self):
     return f'{self.title}, {self.year}, {self.quarter}'

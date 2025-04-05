@@ -10,6 +10,20 @@ class ReportForm(forms.ModelForm):
 			'summary': forms.Textarea(attrs={'rows': 4}),
 			'outcomes': forms.Textarea(attrs={'rows': 3}),
 		}
+		
+    
+class ReviewReportForm(forms.Form):
+  action = forms.ChoiceField(
+    choices=Report.Status.choices[1:],  # Exclude Submitted status
+    widget=forms.RadioSelect,
+    label="Action"
+  )
+	
+  review_notes = forms.CharField(
+    widget=forms.Textarea(attrs={'rows': 3}),
+    required=False,
+    label="Review Notes"
+  )
 
 class ReportPhotoForm(forms.ModelForm):
 	class Meta:
