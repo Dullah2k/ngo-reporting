@@ -3,167 +3,174 @@
 
 {% block content %}
 
-<style>
-	.filter-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    padding: 1rem;
-    background: #f5f5f5;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-select, input[type="number"], input[type="text"] {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.filter-button, .clear-filters {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.filter-button {
-    background-color: #007bff;
-    color: white;
-}
-
-.clear-filters {
-    background-color: #6c757d;
-    color: white;
-    text-decoration: none;
-}
-</style>
-
 <section class="reports-list">
-	<h1>Reports Dashboard</h1>
-	
-	<!-- Filter Form -->
-	<form method="get" class="filter-form">
-		{% if is_admin %}
-		<div class="filter-group">
-			<label>Organization:</label>
-			<input type="text" name="organization" 
-				 value="{{ filter_values.organization }}"
-				 placeholder="Search organizations...">
-		</div>
-		{% endif %}
-		
-		<div class="filter-group">
-			<label>Year:</label>
-			<input type="number" name="year" min="2020" max="2030" 
-				 value="{{ filter_values.year }}">
-		</div>
-		
-		<div class="filter-group">
-			<label>Quarter:</label>
-			<select name="quarter">
-					<option value="">All Quarters</option>
-					{% for value, label in quarter_choices %}
-					<option value="{{ value }}" 
-									{% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
-							{{ label }}
-					</option>
-					{% endfor %}
-			</select>
-		</div>
-		
-		<div class="filter-group">
-			<label>Status:</label>
-			<select name="status">
-					<option value="">All Statuses</option>
-					{% for value, label in status_choices %}
-					<option value="{{ value }}" 
-									{% if filter_values.status == value %}selected{% endif %}>
-							{{ label }}
-					</option>
-					{% endfor %}
-			</select>
-		</div>
-		
-		<div class="filter-group">
-			<label>Sector:</label>
-			<select name="sector">
-					<option value="">All Sectors</option>
-					{% for value, label in sector_choices %}
-					<option value="{{ value }}" 
-									{% if filter_values.sector == value %}selected{% endif %}>
-							{{ label }}
-					</option>
-					{% endfor %}
-			</select>
-		</div>
-		
-		<div class="filter-group">
-			<label>Ward:</label>
-			<select name="ward">
-					<option value="">All Wards</option>
-					{% for value, label in ward_choices %}
-					<option value="{{ value }}" 
-									{% if filter_values.ward == value %}selected{% endif %}>
-							{{ label }}
-					</option>
-					{% endfor %}
-			</select>
-		</div>
-		
-		<button type="submit" class="filter-button">Apply Filters</button>
-		<a href="{% url 'reports:report_list' %}" class="clear-filters">Clear All</a>
-	</form>
-	
-	<!-- Reports Table -->
-	<table>
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Year</th>
-				<th>Quarter</th>
-				<th>Organization</th>
-				<th>Total Beneficiaries</th>
-				<th>Status</th>
-				<th>Action</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for report in reports %}
-			<tr class="status-{{ report.status|lower }}">
-        <td>
-          <a href="{% url 'reports:report_details' report.pk %}">
-            {{ report.title }}
-          </a>
-        </td>
-				<td>{{ report.year }}</td>
-				<td>{{ report.get_quarter_display }}</td>
-				<td>{{ report.organization.get_full_name }}</td>
-				<td>{{ report.total_beneficiaries }}</td>
-				<td>{{ report.get_status_display }}</td>
-        <td>
-          {% if is_admin and report.status == Report.Status.SUBMITTED %}
-          <a href="{% url 'reports:review_report' report.pk %}" 
-             class="review-link"
-             title="Review and update status">
-             ⚙️ Review
-          </a>
-          {% endif %}
-      </td>
-			</tr>
-			{% empty %}
-			<tr>
-				<td colspan="6">No reports found</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+  <nav aria-label="Breadcrumb" class="bg-white p-2 my-2">
+    <ol class="flex items-center gap-1 text-sm text-gray-700">
+      <li>
+        <a href="{% url 'user_account:dashboard' %}" class="block transition-colors hover:text-gray-900" aria-label="Home">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </a>
+      </li>
+  
+      <li class="rtl:rotate-180"> 
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </li>
+  
+      <li>
+        <a href="#" class="block transition-colors hover:text-gray-900"> Reports List </a>
+      </li>
+    </ol>
+  </nav>
 
+  <div class="section-header">
+    <div class="">
+      <h1>Reports Dashboard</h1>
+      <b class="text-gray-500 font-normal">View and filter a list of all the projects added</b>
+    </div>
+    <button class="btn">
+      <i></i>
+      Submit Report
+    </button>
+  </div>
+  
+	<!-- Filter Form -->
+   <div class="bg-white p-2 my-4 rounded-lg">
+    <details>
+      <summary>Filters</summary>
+      <hr>
+      <form method="get" class="grid grid-cols-4 gap-2 items-center">
+        {% if is_admin %}
+        <div class="filter-group">
+          <!-- <label class="block">Organization:</label> -->
+          <select name="quarter" class="dropdown-select">
+            <option value="">All Organizations</option>
+            {% for value, label in organization %}
+            <option value="{{ value }}" 
+                    {% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        
+        <div class="filter-group">
+          <!-- <label>Quarter:</label> -->
+          <select name="quarter" class="dropdown-select">
+              <option value="">All Quarters</option>
+              {% for value, label in quarter_choices %}
+              <option value="{{ value }}" 
+                    {% if filter_values.quarter == value|stringformat:"s" %}selected{% endif %}>
+                  {{ label }}
+              </option>
+              {% endfor %}
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <!-- <label>Status:</label> -->
+          <select name="status"  class="dropdown-select">
+              <option value="">All Statuses</option>
+              {% for value, label in status_choices %}
+              <option value="{{ value }}" 
+                      {% if filter_values.status == value %}selected{% endif %}>
+                  {{ label }}
+              </option>
+              {% endfor %}
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <!-- <label>Sector:</label> -->
+          <select name="sector"  class="dropdown-select">
+              <option value="">All Sectors</option>
+              {% for value, label in sector_choices %}
+              <option value="{{ value }}" 
+                      {% if filter_values.sector == value %}selected{% endif %}>
+                  {{ label }}
+              </option>
+              {% endfor %}
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <!-- <label>Ward:</label> -->
+          <select name="ward"  class="dropdown-select">
+              <option value="">All Wards</option>
+              {% for value, label in ward_choices %}
+              <option value="{{ value }}" 
+                      {% if filter_values.ward == value %}selected{% endif %}>
+                  {{ label }}
+              </option>
+              {% endfor %}
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <input type="number" name="year" min="2020" max="2030" 
+            value="{{ filter_values.year }}" class="dropdown-select" placeholder="Select year">
+        </div>
+        
+        <button type="submit" class="btn">Apply Filters</button>
+        <a href="{% url 'reports:report_list' %}" class="btn-outline">Clear All</a>
+      </form>
+    </details>
+   </div>
+
+	<!-- Reports Table -->
+   <div  class="max-h-46 overflow-x-auto rounded-xl shadow-md">
+    <table class="min-w-full divide-y-2 divide-gray-200 bg-white">
+      <thead class="sticky top-0 bg-blue-500 ltr:text-left rtl:text-right">
+        <tr class="*:font-medium *:text-white *:uppercase">
+          <th class="px-3 py-2 whitespace-nowrap">Title</th>
+          <th class="px-3 py-2 whitespace-nowrap">Year</th>
+          <th class="px-3 py-2 whitespace-nowrap">Quarter</th>
+          <th class="px-3 py-2 whitespace-nowrap">Organization</th>
+          <th class="px-3 py-2 whitespace-nowrap">Sector</th>
+          <th class="px-3 py-2 whitespace-nowrap">Ward</th>
+          <th class="px-3 py-2 whitespace-nowrap">Total Beneficiaries</th>
+          <th class="px-3 py-2 whitespace-nowrap">Status</th>
+          <th class="px-3 py-2 whitespace-nowrap">Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200">
+        {% for report in reports %}
+        <tr class="font-medium text-sm text-gray-500">
+          <td class="px-3 py-2 whitespace-nowrap font-medium capitalize">
+            <a href="{% url 'reports:report_details' report.pk %}">
+              {{ report.title }}
+            </a>
+          </td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.year }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.get_quarter_display }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.organization.get_full_name }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.get_sector_display }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.get_ward_display }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.total_beneficiaries }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">{{ report.get_status_display }}</td>
+          <td class="px-3 py-2 whitespace-nowrap">
+            {% if is_admin and report.status == Report.Status.SUBMITTED %}
+            <a href="{% url 'reports:review_report' report.pk %}" 
+               class="review-link"
+               title="Review and update status">
+               ⚙️ Review
+            </a>
+            {% endif %}
+        </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-3 py-2 whitespace-nowrap">No reports found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+   </div>
 </section>
 {% endblock %}

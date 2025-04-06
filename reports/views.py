@@ -37,6 +37,7 @@ def create_report(request):
 	return render(request, 'reports/create.html', {
 		'report_form': report_form,
 		'photo_form': photo_form,
+		'section': 'create_report',
 	})
 
 def report_list(request):
@@ -62,6 +63,7 @@ def report_list(request):
 	
 	context = {
 		'reports': reports,
+		'section': 'reports',
 		'is_admin': is_admin,
 		'filter_values': request.GET,
 		# Add these to make choices available in template
@@ -77,6 +79,7 @@ def report_detail(request, pk):
   report = get_object_or_404(Report, pk=pk)
   context = {
     'report': report,
+		'section': 'reports',
     'can_review': request.user.is_staff and report.status == Report.Status.SUBMITTED
   }
   return render(request, 'reports/details.html', context)
@@ -103,5 +106,6 @@ def review_report(request, pk):
 
   return render(request, 'reports/review_report.html', {
     'report': report,
-    'form': form
+    'form': form,
+    'section': 'reports',
   })
